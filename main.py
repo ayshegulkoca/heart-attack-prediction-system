@@ -5,6 +5,7 @@ import datetime
 import tkinter as tk
 from tkinter import ttk
 import os
+from tkinter import messagebox
 
 import matplotlib
 
@@ -15,6 +16,7 @@ from matplotlib.figure import Figure
 import numpy as np
 import matplotlib.pyplot as plt
 
+from backend import *
 
 background="#f0ddd5"
 framebg="#62a7ff"
@@ -27,13 +29,202 @@ root.resizable(False,False)
 root.config(bg=background)
 
 
+########### Analysis ##################
+def analysis():
+    name = Name.get()
+    D1 = Date.get()
+    today = datetime.date.today()
+    A = today.year - DOB.get()
+
+    try:
+        B = selection()
+    except:
+        messagebox.showerror("Missing", "Please select gender!")
+        return
+
+    try:
+        F = selection2()
+    except:
+        messagebox.showerror("Missing", "Please select fbs!")
+        return
+
+    try:
+        I = selection3()
+    except:
+        messagebox.showerror("Missing", "Please select exang!")
+        return
+
+    try:
+        C = int(selection4())
+    except:
+        messagebox.showerror("Missing", "Please select cp!")
+        return
+
+    try:
+        G = int(restecg_combobox.get())
+    except:
+        messagebox.showerror("Missing", "Please select restecg!")
+        return
+
+    try:
+        K = int(selection5())
+    except:
+        messagebox.showerror("Missing", "Please select slope!")
+        return
+
+    try:
+        L = int(ca_combobox.get())
+    except:
+        messagebox.showerror("Missing", "Please select ca!")
+        return
+
+    try:
+        M = int(thal_combobox.get())
+    except:
+        messagebox.showerror("Missing", "Please select thal!")
+        return
+
+    try:
+        D = int(trestbps.get())
+        E = int(chol.get())
+        H = int(thalach.get())
+        J = float(oldpeak.get())
+    except:
+        messagebox.showerror("Missing Data", "Few missing data entry!")
+        return
+
+    print("A is age:", A)
+    print("B is gender:", B)
+    print("C is cp:", C)
+    print("D is trestbps:", D)
+    print("E is chol:", E)
+    print("F is fbs:", F)
+    print("G is restcg:", G)
+    print("H is thalach:", H)
+    print("I is exang:", I)
+    print("J is oldpeak:", J)
+    print("K is slop:", K)
+    print("L is ca:", L)
+    print("M is thal:", M)
+
+    ########### First graph (binary inputs) ############
+    f = Figure(figsize=(5, 5), dpi=100)
+    a = f.add_subplot(111)
+    a.plot(["Sex", "FBS", "Exang"], [B, F, I])
+    canvas = FigureCanvasTkAgg(f)
+    canvas.get_tk_widget().pack(side=tk.BOTTOM,fill=tk.BOTH,expand=True)
+    canvas._tkcanvas.place(width=250,height=250,x=600,y=240)
+
+    ########### Second graph ############
+    f2 = Figure(figsize=(5, 5), dpi=100)
+    a2 = f2.add_subplot(111)
+    a2.plot(["age", "trestbps", "chol","thalach"], [A,D,E,H])
+    canvas2 = FigureCanvasTkAgg(f2)
+    canvas2.get_tk_widget().pack(side=tk.BOTTOM,fill=tk.BOTH,expand=True)
+    canvas2._tkcanvas.place(width=250,height=250,x=860,y=240)
+
+
+    ########### Third graph ############
+    f3 = Figure(figsize=(5, 5), dpi=100)
+    a3 = f3.add_subplot(111)
+    a3.plot(["oldpeak", "resticg","cp"], [J,G,C])
+    canvas3 = FigureCanvasTkAgg(f3)
+    canvas3.get_tk_widget().pack(side=tk.BOTTOM,fill=tk.BOTH,expand=True)
+    canvas3._tkcanvas.place(width=250,height=250,x=600,y=470)
+
+    ########## Fourth graph ############
+    f4 = Figure(figsize=(5, 5), dpi=100)
+    a4 = f4.add_subplot(111)
+    a4.plot(["slope", "ca", "thal"], [K,L,M])
+    canvas4 = FigureCanvasTkAgg(f4)
+    canvas4.get_tk_widget().pack(side=tk.BOTTOM,fill=tk.BOTH,expand=True)
+    canvas4._tkcanvas.place(width=250,height=250,x=860,y=470)
+
+
+############ input data #############
+    input_data = (63, 1, 3, 145, 233, 1, 0, 150, 0, 2.3, 0, 0, 1)
+    input_data_as_numpy_array = np.asarray(input_data)
+    
+    input_Data_reshape = input_data_as_numpy_array.reshape(1, -1)
+    
+    prediction = model.predict(input_Data_reshape)
+    print(prediction[0])
+
+    if (prediction[0] == 0):
+        print('The person does not have a Heart Disease')
+        report.config(text=f"Report:{0}", fg="#8dc63f")
+        report1.config(text=f"{name},you do not have a heart disease")
+    else:
+        print('The person has Heart Disease')
+        report.config(text=f"Report:{1}", fg="#ed1c24")
+        report1.config(text=f"{name},you have a heart disease")
+    
+
+
+
+
+
+
+
+ 
+####### info window (operated by info button) #############
+def info():
+    Icon_window=Toplevel(root)
+    Icon_window.title("Info")
+    Icon_window.geometry("700x600+400+100")
+
+
+    #icon_image
+    icon_image=PhotoImage(file="Images/info.png")
+    Icon_window.iconphoto(False,icon_image)
+
+
+
+    #heading
+    Label(Icon_window,text="Information Related to dataset",font="robot 19 bold").pack(padx=20,pady=20)
+
+    #info
+    Label(Icon_window,text="age - age in years",font="arial 11").place(x=20,y=100)
+    Label(Icon_window,text="sex - sex (1 = male; 0 = female)",font="arial 11").place(x=20,y=130)
+    Label(Icon_window,text="cp - chest pain type (0 = typical angina; 1 = atypical angina; 2 = non-anginal pain; 3 = asymptomatic)",font="arial 11").place(x=20,y=160)
+    Label(Icon_window,text="trestbps - resting blood pressure (in mm Hg on admission to the hospital)",font="arial 11").place(x=20,y=190)
+    Label(Icon_window,text="chol - serum cholestoral in mg/dl",font="arial 11").place(x=20,y=220)
+    Label(Icon_window,text="fbs - fasting blood sugar > 120 mg/dl (1 = true; 0 = false)",font="arial 11").place(x=20,y=250)
+    Label(Icon_window,text="restecg - resting electrocardiographic results (0 = normal; 1 = having ST-T; 2 = hypertrophy)",font="arial 11").place(x=20,y=280)
+    Label(Icon_window,text="thalach - maximum heart rate achieved",font="arial 11").place(x=20,y=310)
+    Label(Icon_window,text="exang - exercise induced angina (1 = yes; 0 = no)",font="arial 11").place(x=20,y=340)
+    Label(Icon_window,text="oldpeak - ST depression induced by exercise relative to rest",font="arial 11").place(x=20,y=370)
+    Label(Icon_window,text="slope - the slope of the peak exercise ST segment (0 = upsloping; 1 = flat; 2 = downsloping)",font="arial 11").place(x=20,y=400)
+    Label(Icon_window,text="ca - number of major vessels (0-3) colored by flourosopy",font="arial 11").place(x=20,y=430)
+    Label(Icon_window,text="thal - 0 = normal; 1 = fixed defect; 2 = reversable defect",font="arial 11").place(x=20,y=460)
+
+
+    Icon_window.mainloop()
+
+
+############ it is use for closing window ##########3
+
+def logout():
+    root.destroy()
+
+
+######## Clear #########
+def Clear():
+    Name.get('')
+    DOB.get('')
+    trestbps.get('')
+    chol.get('')
+    thalach.get('')
+    oldpeak.get('')
+
+
+
 ############################################################
 
 
 #icon 1
 image_icon=PhotoImage(file="Images/icon.png")
 root.iconphoto(False,image_icon)
-
 
 
 ###### header section 2 ######
@@ -106,28 +297,20 @@ def selection():
     
 
 def selection2():
-    if fbs.get()==1:
-        Fbs=1
-        return(Fbs)
-        print(Fbs)
-    elif Fbs.get()==2:
-        Fbs=0
-        return(Fbs)
-        print(Fbs)
+    if fbs.get() == 1:
+        return 1
+    elif fbs.get() == 2:
+        return 0
     else:
-        print(Fbs)
+        raise ValueError("FBS not selected")
 
 def selection3():
-    if Exang.get()==1:
-        Exang=1
-        return()
-        print(Exang)
-    elif Exang.get()==2:
-        Exang=0
-        return(Exang)
-        print(Exang)
+    if exang.get() == 1:
+        return 1
+    elif exang.get() == 2:
+        return 0
     else:
-        print(Exang)
+        raise ValueError("exang not selected")
 
 
 gen = IntVar()
@@ -238,12 +421,12 @@ Label(image=graph_image).place(x=860,y=500)
 
 ############### Button ################
 analysis_button=PhotoImage(file="Images/Analysis.png")
-Button(root,image=analysis_button,bd=0,bg=background,cursor='hand2').place(x=1130,y=240)
+Button(root,image=analysis_button,bd=0,bg=background,cursor='hand2', command=analysis).place(x=1130,y=240)
 
 
 ############# info button ###########
 info_button=PhotoImage(file="Images/info.png")
-Button(root,image=info_button,bd=0,bg=background,cursor='hand2').place(x=10,y=240)
+Button(root,image=info_button,bd=0,bg=background,cursor='hand2', command=info).place(x=10,y=240)
 
 
 ##############save button ###########
@@ -281,7 +464,7 @@ mode.place(x=350,y=495)
 
 ################### LogOut Button ##############################
 logout_icon=PhotoImage(file="Images/logout.png")
-logout_button=Button(root,image=logout_icon,bg="#df2d4b",cursor="hand2",bd=0)
+logout_button=Button(root,image=logout_icon,bg="#df2d4b",cursor="hand2",bd=0, command=logout)
 logout_button.place(x=1390,y=60)
 
 ################################################################
