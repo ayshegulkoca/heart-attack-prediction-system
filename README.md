@@ -7,7 +7,7 @@ This project provides a machine learning–based system to predict the risk of a
 ## About the Project
 
 The **Heart Attack Prediction System** uses data analysis and machine learning to predict whether an individual is at risk of a heart attack.  
-The model is trained on health-related features such as age, gender, blood pressure, cholesterol level, and maximum heart rate, then classifies the individual as **“at risk”** or **“not at risk”**.
+The model is trained on health-related features such as age, gender, blood pressure, cholesterol level, maximum heart rate, and detailed information about patients then classifies the individual as **“at risk”** or **“not at risk”**.
 
 ---
 
